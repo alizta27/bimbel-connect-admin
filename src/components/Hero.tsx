@@ -42,7 +42,7 @@ const Hero = () => {
           </p>
 
           {/* Badge */}
-          <div className="inline-block bg-secondary text-primary px-8 py-4 rounded-2xl mb-8 shadow-gold animate-fade-in-up delay-300">
+          <div className="inline-block bg-secondary text-white px-8 py-4 rounded-2xl mb-8 shadow-gold animate-fade-in-up delay-300">
             <h3 className="text-2xl md:text-3xl font-bold mb-2">KUPAS TUNTAS</h3>
             <p className="text-sm md:text-base font-medium">
               Tembus Kampus Al-Azhar Mesir, Turkiye, Timur Tengah & Asia Tengah
@@ -54,7 +54,7 @@ const Hero = () => {
             <Button
               size="lg"
               onClick={scrollToRegistration}
-              className="bg-secondary text-primary hover:bg-secondary/90 font-bold text-lg px-8 py-6 rounded-xl shadow-gold hover:shadow-xl transition-all hover:scale-105"
+              className="bg-secondary text-white hover:bg-secondary/90 font-bold text-lg px-8 py-6 rounded-xl shadow-gold hover:shadow-xl transition-all hover:scale-105"
             >
               Daftar Sekarang
               <ArrowRight className="ml-2 h-5 w-5" />
