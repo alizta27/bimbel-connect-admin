@@ -1,0 +1,291 @@
+@import './variables';
+@import './mixins';
+
+// Container
+.container {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 $spacing-md;
+}
+
+// App Layout
+.app-layout {
+  min-height: 100vh;
+  padding-bottom: 80px; // Space for bottom nav
+}
+
+// Bottom Navigation
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: $color-surface;
+  border-top: 1px solid $color-border;
+  padding: $spacing-sm 0;
+  z-index: $z-index-navbar;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+
+  &__container {
+    @include flex-between;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 $spacing-md;
+  }
+
+  &__item {
+    @include button-reset;
+    @include flex-center;
+    flex-direction: column;
+    gap: $spacing-xs;
+    flex: 1;
+    padding: $spacing-sm;
+    color: $color-text-secondary;
+    @include smooth-transition(color);
+
+    &--active {
+      color: $color-primary;
+    }
+
+    &:hover {
+      color: $color-primary;
+    }
+  }
+
+  &__icon {
+    font-size: 24px;
+  }
+
+  &__label {
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+  }
+}
+
+// Feed Card
+.feed-card {
+  background: $color-surface;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  margin-bottom: $spacing-lg;
+  box-shadow: $shadow-md;
+
+  &__header {
+    @include flex-between;
+    padding: $spacing-md;
+  }
+
+  &__user {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  &__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: $radius-full;
+    object-fit: cover;
+    border: 2px solid $color-accent;
+  }
+
+  &__user-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__username {
+    font-weight: $font-weight-semibold;
+    font-size: $font-size-base;
+  }
+
+  &__timestamp {
+    font-size: $font-size-xs;
+    color: $color-text-secondary;
+  }
+
+  &__media {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+  }
+
+  &__content {
+    padding: $spacing-md;
+  }
+
+  &__description {
+    font-size: $font-size-base;
+    line-height: 1.6;
+    margin-bottom: $spacing-md;
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+    margin-bottom: $spacing-md;
+  }
+
+  &__tag {
+    padding: $spacing-xs $spacing-sm;
+    background: $color-accent;
+    color: $color-primary;
+    border-radius: $radius-full;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+  }
+
+  &__actions {
+    @include flex-between;
+    padding: $spacing-md;
+    border-top: 1px solid $color-border;
+  }
+
+  &__action-group {
+    display: flex;
+    gap: $spacing-lg;
+  }
+
+  &__action-btn {
+    @include button-reset;
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    color: $color-text-secondary;
+    font-size: $font-size-sm;
+    @include smooth-transition(color);
+
+    &--active {
+      color: $color-primary;
+    }
+
+    &:hover {
+      color: $color-primary;
+    }
+  }
+}
+
+// Button
+.btn {
+  @include button-reset;
+  padding: $spacing-sm $spacing-lg;
+  border-radius: $radius-full;
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-base;
+  @include smooth-transition;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+
+  &--primary {
+    background: $color-primary;
+    color: white;
+
+    &:hover {
+      background: darken($color-primary, 10%);
+    }
+  }
+
+  &--secondary {
+    background: $color-accent;
+    color: $color-primary;
+
+    &:hover {
+      background: darken($color-accent, 10%);
+    }
+  }
+
+  &--outline {
+    border: 2px solid $color-primary;
+    color: $color-primary;
+
+    &:hover {
+      background: $color-primary;
+      color: white;
+    }
+  }
+
+  &--full {
+    width: 100%;
+  }
+}
+
+// Input
+.input {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  font-size: $font-size-base;
+  @include smooth-transition(border-color);
+
+  &:focus {
+    outline: none;
+    border-color: $color-primary;
+  }
+
+  &::placeholder {
+    color: $color-text-secondary;
+  }
+}
+
+.textarea {
+  @extend .input;
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+// Profile Header
+.profile-header {
+  background: linear-gradient(135deg, $color-primary, $color-secondary);
+  padding: $spacing-xl $spacing-md;
+  color: white;
+  text-align: center;
+
+  &__avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: $radius-full;
+    margin: 0 auto $spacing-md;
+    border: 4px solid $color-accent;
+    object-fit: cover;
+  }
+
+  &__name {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    margin-bottom: $spacing-xs;
+  }
+
+  &__bio {
+    font-size: $font-size-base;
+    opacity: 0.9;
+    margin-bottom: $spacing-md;
+  }
+
+  &__stats {
+    display: flex;
+    justify-content: center;
+    gap: $spacing-xl;
+  }
+
+  &__stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  &__stat-value {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+  }
+
+  &__stat-label {
+    font-size: $font-size-sm;
+    opacity: 0.8;
+  }
+}

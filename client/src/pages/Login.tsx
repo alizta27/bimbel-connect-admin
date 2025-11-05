@@ -1,132 +1,129 @@
-import { useState } from "react";
-import { useLocation } from "wouter";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Loader2 } from "lucide-react";
-import { authService } from "@/lib/auth";
-import { useToast } from "@/hooks/use-toast";
+import { useState } from 'react';
+import { useLocation } from 'wouter';
+import { useAuthStore } from '@/store/useAuthStore';
+import '@/styles/main.scss';
 
 export default function Login() {
   const [, setLocation] = useLocation();
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const { login } = useAuthStore();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setIsLoading(true);
-
-    try {
-      //todo: integrate with Supabase Auth or backend API
-      await authService.login(formData.email, formData.password);
-      
-      toast({
-        title: "Login Berhasil!",
-        description: "Selamat datang kembali di KerjaAja",
-      });
-
-      // Redirect to home or dashboard
-      setLocation("/");
-      
-      // Reload to update navbar
-      window.location.reload();
-    } catch (err) {
-      setError("Email atau password salah. Silakan coba lagi.");
-    } finally {
-      setIsLoading(false);
+    setError('');
+    
+    const success = login(email, password);
+    if (success) {
+      setLocation('/');
+    } else {
+      setError('Email atau password salah. Gunakan admin@admin.com / qwerty');
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-accent/10 to-background">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">KerjaAja</h1>
-          <p className="text-muted-foreground">Masuk ke akun Anda</p>
-        </div>
+    <div className="app-layout" style={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center',
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #31694E, #658C58)',
+    }}>
+      <div className="container" style={{ maxWidth: '400px' }}>
+        <div style={{
+          background: 'white',
+          padding: '2rem',
+          borderRadius: '1rem',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+        }}>
+          <h1 style={{ 
+            fontSize: '2.5rem', 
+            fontWeight: 700, 
+            color: '#31694E',
+            marginBottom: '0.5rem',
+            textAlign: 'center'
+          }}>
+            KerjaAja
+          </h1>
+          <p style={{ 
+            textAlign: 'center', 
+            color: '#666', 
+            marginBottom: '2rem',
+            fontSize: '0.875rem'
+          }}>
+            Platform Freelancing Sosial
+          </p>
 
-        <Card className="p-8 shadow-xl">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit}>
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ 
+                display: 'block', 
+                marginBottom: '0.5rem',
+                fontWeight: 500,
+                color: '#1A1A1A'
+              }}>
+                Email
+              </label>
+              <input
+                type="email"
+                className="input"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@admin.com"
+                required
+              />
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ 
+                display: 'block', 
+                marginBottom: '0.5rem',
+                fontWeight: 500,
+                color: '#1A1A1A'
+              }}>
+                Password
+              </label>
+              <input
+                type="password"
+                className="input"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="qwerty"
+                required
+              />
+            </div>
+
             {error && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
+              <div style={{
+                padding: '0.75rem',
+                background: '#FEE',
+                color: '#E74C3C',
+                borderRadius: '0.5rem',
+                marginBottom: '1rem',
+                fontSize: '0.875rem'
+              }}>
+                {error}
+              </div>
             )}
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="nama@email.com"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-                disabled={isLoading}
-                data-testid="input-email"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
-                <a href="#" className="text-sm text-primary hover:underline">
-                  Lupa password?
-                </a>
-              </div>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="••••••••"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                required
-                disabled={isLoading}
-                data-testid="input-password"
-              />
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full"
-              size="lg"
-              disabled={isLoading}
-              data-testid="button-submit"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Memproses...
-                </>
-              ) : (
-                "Masuk"
-              )}
-            </Button>
+            <button type="submit" className="btn btn--primary btn--full">
+              Masuk
+            </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-muted-foreground">
-            Belum punya akun?{" "}
-            <a href="/signup" className="text-primary font-semibold hover:underline" data-testid="link-signup">
-              Daftar sekarang
-            </a>
+          <div style={{
+            marginTop: '1.5rem',
+            padding: '1rem',
+            background: '#F0E491',
+            borderRadius: '0.5rem',
+            fontSize: '0.75rem',
+            color: '#31694E'
+          }}>
+            <strong>Demo Account:</strong><br />
+            Email: admin@admin.com<br />
+            Password: qwerty
           </div>
-        </Card>
-
-        <div className="mt-6 text-center">
-          <a href="/" className="text-sm text-muted-foreground hover:text-foreground" data-testid="link-home">
-            ← Kembali ke beranda
-          </a>
         </div>
       </div>
     </div>
