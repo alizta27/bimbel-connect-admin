@@ -1,268 +1,92 @@
 # KerjaAja Design Guidelines
 
-## Design Approach: Retro-Modern Cheerful Aesthetic
+## Design Philosophy
+**Retro-Modern Ceria** (Cheerful Retro-Modern) - A playful yet professional mobile-first experience that combines the engaging scroll experience of TikTok/Instagram with freelancing functionality.
 
-This platform takes inspiration from vintage job boards and retro design with a modern, cheerful twist. Think 70s-inspired rounded corners, bold typography, and playful elements combined with contemporary UX patterns.
-
----
-
-## Color System
-
-**Primary Palette:**
-- Light Yellow `#F0E491` - Main backgrounds, highlights, cheerful accents
-- Light Greenish-Yellow `#BBC863` - Secondary backgrounds, hover states
-- Deep Green `#31694E` - Primary CTAs, headers, important text
-- Muted Green `#658C58` - Supporting elements, borders, icons
-
-**Application:**
-- Page backgrounds: Light Yellow with subtle texture/pattern overlay
-- Cards/Job listings: White or cream backgrounds with colored borders
-- CTAs and important buttons: Deep Green with Light Yellow text
-- Navbar/Header: Deep Green or gradient between Deep Green and Muted Green
-- Hover states: Light Greenish-Yellow transitions
-- Success states: Muted Green
-- Badges/Tags: Mix of all four colors for variety
-
----
+## Color Palette
+- **Primary Yellow**: `#F0E491` - Light cheerful base color for backgrounds and highlights
+- **Secondary Greenish-Yellow**: `#BBC863` - Soft complementary tone for cards and sections
+- **Deep Green**: `#31694E` - Professional contrast for CTAs, headers, and important elements
+- **Muted Green**: `#658C58` - Supporting color for secondary actions and borders
 
 ## Typography
-
-**Font Selection:**
-- **Headers**: Bold, playful sans-serif (consider DM Sans Bold, Poppins Bold, or Montserrat ExtraBold)
-- **Body**: Clean, readable sans-serif (Inter Regular, DM Sans Regular)
-- **Accents**: Slightly rounded sans-serif for friendly feel
-
-**Hierarchy:**
-- H1: Bold, 48-56px desktop / 32-36px mobile - for hero sections
-- H2: Bold, 36-40px desktop / 28px mobile - for section headers
-- H3: Bold, 24-28px desktop / 20px mobile - for card titles
-- Body: Regular, 16-18px - for content and descriptions
-- Small: Regular, 14px - for metadata, timestamps, labels
-- Button Text: Semibold, 16px - for clarity and impact
-
-**Style Notes:**
-- Use ALL CAPS sparingly for emphasis (badges, labels)
-- Letter-spacing: slightly increased for headers (+0.5px to +1px)
-- Line-height: 1.6 for body text, 1.2 for headers
-
----
+- **Bold & Readable**: Prioritize readability on small mobile screens
+- **Hierarchy**: Strong contrast between headers and body text
+- **Indonesian Language**: All UI text in Bahasa Indonesia (e.g., "Unggah", "Komentar", "Tawar", "Profil")
 
 ## Layout System
-
-**Spacing Primitives (using 8px base unit):**
-- Base grid: 8px increments
-- Common spacing: 8px, 16px, 24px, 32px, 48px, 64px
-- Component padding: 16px (mobile), 24px (tablet), 32px (desktop)
-- Section margins: 48px (mobile), 64px (tablet), 96px (desktop)
-- Card gaps: 16px (mobile), 24px (desktop)
-
-**Container System:**
-- Max-width: 1280px for main content
-- Gutter padding: 16px (mobile), 32px (tablet), 48px (desktop)
-- Grid columns: 1 (mobile), 2 (tablet), 3-4 (desktop)
-
-**Breakpoints:**
-- Mobile: < 768px
-- Tablet: 768px - 1024px
-- Desktop: > 1024px
-
----
+- **Mobile-First Viewport**: Design primarily for 375px-428px width (smartphone screens)
+- **Vertical Feed Priority**: Full-screen scrollable feed as primary interface
+- **Spacing**: Use Tailwind units of 2, 4, 6, and 8 for consistent rhythm (p-2, p-4, gap-6, mb-8)
+- **Card-Based**: Rounded corners (rounded-xl, rounded-2xl) for all major components
 
 ## Component Library
 
-### Navigation
-**Navbar:**
-- Fixed top position with Deep Green background
-- Logo with retro-style typography on left
-- Navigation links in center (Desktop) / hamburger menu (Mobile)
-- Token balance badge and user avatar on right
-- Height: 64px with subtle shadow
-- Rounded bottom corners (border-radius: 0 0 16px 16px)
+### Bottom Navigation Bar
+- Fixed at bottom with 4-5 icons (Home/Feed, Search, Upload, Dashboard, Profile)
+- Active state with deep green background and icon highlighting
+- Smooth color transitions on tap
 
-**Sidebar (Dashboard):**
-- Left-aligned, collapsible on mobile
-- Light Yellow background with Deep Green icons
-- Rounded corners on menu items
-- Active state: Deep Green background with Light Yellow text
-- Width: 240px (desktop), full-screen overlay (mobile)
+### FeedCard (Main Content Card)
+- Full-width or near-full-width cards with rounded corners
+- Photo/Video display area (16:9 or 1:1 aspect ratio)
+- User avatar + name at top
+- Description text (2-3 lines with "Lihat Selengkapnya")
+- Action buttons row: Like (heart), Comment (bubble), Bid/Tawar (tag icon)
+- Light yellow or greenish-yellow background with subtle shadows
 
-### Job Cards
-**JobCard Component:**
-- White/cream background with 2px colored border (rotating palette colors)
-- Rounded corners: 16px
-- Padding: 24px
-- Shadow: subtle on hover (0 4px 12px rgba(0,0,0,0.08))
-- Layout: Title (H3), Company name, Location, Token cost badge, Brief description, Skills tags
-- Footer: Posted timestamp + "Lihat Detail" button
-- Hover: Slight lift animation (transform: translateY(-4px))
+### Upload Form
+- Bottom sheet or modal overlay for posting new jobs
+- Large upload area with dashed border in muted green
+- Text input for job description
+- Category selector (dropdown or pills)
+- Submit button in deep green
 
-### Buttons
-**Primary Button:**
-- Background: Deep Green
-- Text: Light Yellow, semibold
-- Border-radius: 24px (pill-shaped for retro feel)
-- Padding: 12px 32px
-- Hover: Darken background, scale slightly (1.05)
-- Active: Further darken, scale down (0.98)
+### Comment Section
+- Slide-up bottom sheet with white/light yellow background
+- User avatar + comment text in rounded bubbles
+- Input field with send button at bottom
+- Scrollable comment list
 
-**Secondary Button:**
-- Background: Light Greenish-Yellow
-- Text: Deep Green, semibold
-- Same shape and interactions as primary
+### Profile Header
+- Avatar (circular, large) with muted green border
+- Username and bio text
+- Token/credit display with playful coin icon
+- Edit profile button (rounded, deep green)
 
-**Token Button:**
-- Pill-shaped with token icon
-- Background: gradient between yellows
-- Border: 2px Deep Green
-- Text: Deep Green showing token count
-- Pulse animation on updates
-
-### Forms
-**Form Inputs (React Hook Form + Radix):**
-- Border: 2px Muted Green
-- Border-radius: 12px
-- Padding: 12px 16px
-- Focus state: Border Deep Green with subtle glow
-- Error state: Red border with shake animation
-- Labels: Bold, 14px, Deep Green, positioned above input
-- Helper text: 12px, Muted Green
-
-**Select/Dropdown:**
-- Same styling as inputs
-- Dropdown menu: White background with Light Yellow hover states
-- Options with rounded corners
-
-**Radio/Checkbox:**
-- Custom styled with Radix
-- Active state: Deep Green fill
-- Border: 2px when inactive
-
-### Cards & Containers
-**Dashboard Cards:**
-- White background with colored left border accent (4px)
-- Border-radius: 12px
-- Padding: 24px
-- Shadow: 0 2px 8px rgba(0,0,0,0.04)
-
-**Modal/Dialog:**
-- Overlay: rgba(49, 105, 78, 0.4) - Deep Green tint
-- Content: White with rounded corners (20px)
-- Close button: Circular, top-right, Deep Green
-- Max-width: 600px
-
-### Badges & Tags
-**Skill Tags:**
-- Small pill badges
-- Rotating colors from palette
-- Border-radius: 16px
-- Padding: 4px 12px
-- Font-size: 12px, semibold
-
-**Status Badges:**
-- "Open", "Closed", "In Progress" states
-- Colored backgrounds with white text
-- Border-radius: 8px
-- Bold text, uppercase
-
----
-
-## Page-Specific Layouts
-
-### Homepage
-**Hero Section:**
-- Full-width banner with Light Yellow to Light Greenish-Yellow gradient
-- Large retro-style headline with playful typography
-- Search bar prominent (large, centered, with filters)
-- Decorative retro geometric shapes or pattern overlay
-- Height: 50vh minimum
-
-**Job Listings Grid:**
-- 3-column grid (desktop), 2-column (tablet), 1-column (mobile)
-- Filters sidebar on left (desktop) or collapsible drawer (mobile)
-- Pagination or infinite scroll
-- Empty state with cheerful illustration
-
-### Job Detail Page
-**Layout:**
-- Breadcrumb navigation at top
-- Two-column layout: Main content (70%) + Sidebar (30%)
-- Main: Job title, company, description, requirements, skills
-- Sidebar: Token cost, apply button, company info, related jobs
-- Sticky sidebar on scroll (desktop)
-
-### Dashboard
-**Employer Dashboard:**
-- Stats cards at top (Total Jobs, Active Bids, etc.)
-- Tabs: "Pekerjaan Saya", "Lamaran Masuk", "Buat Pekerjaan Baru"
-- Table view for job listings with action buttons
-
-**Freelancer Dashboard:**
-- Token balance prominent at top
-- Tabs: "Lamaran Saya", "Pekerjaan Tersimpan", "Riwayat"
-- Card grid for applied jobs with status badges
-
-### Auth Pages
-**Login/Register:**
-- Centered card (max-width 480px)
-- Split design: Form on left, decorative pattern/illustration on right
-- Social auth buttons with retro styling
-- Toggle between Login/Register with tab-like interface
-
----
+### Dashboard Cards
+- Grid of 2-column statistics cards on mobile
+- Token balance, active jobs, completed jobs
+- Rounded cards with light backgrounds
 
 ## Animations & Interactions
+- **Soft CSS Transitions**: 200-300ms ease-in-out for all state changes
+- **Scroll Behavior**: Smooth vertical scroll with momentum
+- **Card Interactions**: Subtle scale on tap (scale-98 to scale-100)
+- **Bottom Sheet**: Slide-up animation with backdrop fade
+- **Like Animation**: Heart icon pop/bounce effect
+- **No Distracting Animations**: Keep animations purposeful and subtle
 
-**Micro-animations:**
-- Button hover: scale(1.05) + subtle shadow
-- Card hover: translateY(-4px) + shadow increase
-- Form focus: border color transition (200ms)
-- Page transitions: fade-in (300ms ease)
-- Loading states: gentle pulse or retro spinner
-
-**Prohibited:**
-- Excessive parallax or scroll-triggered animations
-- Distracting background animations
-- Complex hover effects that reduce readability
-
----
+## Mobile-First Responsive Behavior
+- **<768px (Mobile)**: Single column, full-width cards, bottom navigation
+- **≥768px (Tablet)**: 2-column feed grid, side navigation option
+- **≥1024px (Desktop)**: 3-column grid with fixed sidebar, feed remains centered
 
 ## Images
-
-### Hero Image
-- Large, cheerful illustration or photo of diverse Indonesian workers/freelancers
-- Placement: Full-width background in hero section with color overlay
-- Style: Warm, inviting, with people collaborating or working
-
-### Job Listings
-- Company logos: Small circular thumbnails (48x48px)
-- Placeholder: Colorful initial badges if no logo
-
-### Dashboard
-- User avatars: Circular, 40px (navbar), 80px (profile)
-- Empty state illustrations: Retro-style, cheerful, matching color palette
-
-### General
-- Decorative elements: Retro geometric shapes, abstract patterns in section backgrounds
-- Icons: Rounded style from Heroicons or similar, colored with palette
-
----
+- **User Avatars**: Circular profile images throughout the app
+- **Job Photos/Videos**: Primary content in feed cards - use placeholder images of work/projects (construction, design, coding, services)
+- **Empty States**: Cheerful illustrations when no content exists
+- No large hero section - app opens directly to vertical feed
 
 ## Accessibility
+- Touch targets minimum 44x44px for mobile taps
+- High contrast text (deep green on light yellow)
+- Clear focus states for keyboard navigation
+- Readable font sizes (minimum 14px for body text)
 
-- Color contrast ratios meet WCAG AA standards (Deep Green text on Light Yellow backgrounds)
-- Focus indicators: Visible 2px Deep Green outlines
-- Form labels always present and associated
-- Alt text for all images and icons
-- Keyboard navigation fully supported
-- Screen reader friendly with proper ARIA labels (in Indonesian)
-
----
-
-## Language & Content
-
-**UI Text:** All in Bahasa Indonesia
-- Buttons: "Lamar Sekarang", "Lihat Detail", "Masuk", "Daftar"
-- Labels: "Nama Pekerjaan", "Kategori", "Lokasi", "Budget"
-- Messages: Error/success in Indonesian
-
-**Tone:** Friendly, professional, encouraging - matching the cheerful aesthetic
+## Key UX Patterns
+- **Swipe Gestures**: Optional swipe to like/archive posts
+- **Pull to Refresh**: Standard mobile pattern for feed updates
+- **Infinite Scroll**: Load more posts as user scrolls down
+- **Double-Tap to Like**: Instagram-style interaction
+- **Bottom Sheet Navigation**: For comments, filters, and actions
