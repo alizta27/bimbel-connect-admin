@@ -77,6 +77,7 @@ export interface Proposal {
   proposedBy: string;
   amount: number;
   message?: string;
+  rejectionReason?: string;
   createdAt: string;
 }
 
@@ -126,11 +127,13 @@ interface AppState {
   updateConversationStatus: (conversationId: string, status: ConversationStatus) => void;
   sendProposal: (conversationId: string, amount: number, message?: string) => void;
   approveProposal: (conversationId: string) => void;
-  rejectProposal: (conversationId: string) => void;
+  rejectProposal: (conversationId: string, rejectionReason?: string) => void;
   createContract: (conversationId: string, finalAmount: number) => void;
+  closeConversation: (conversationId: string) => void;
   setSearchQuery: (query: string) => void;
   setSelectedCategory: (category: string) => void;
   initializeFromLocalStorage: () => void;
+  resetConversationsWithDummyData: () => void;
 }
 
 const STORAGE_KEY = 'kerjaaja_data';
@@ -388,13 +391,21 @@ export const useStore = create<AppState>((set, get) => ({
     saveToLocalStorage(data);
   },
 
-  rejectProposal: (conversationId) => {
+  rejectProposal: (conversationId, rejectionReason) => {
     set((state) => ({
-      conversations: state.conversations.map((conv) =>
-        conv.id === conversationId
-          ? { ...conv, status: "proposal_rejected" as ConversationStatus, currentProposal: undefined }
-          : conv
-      ),
+      conversations: state.conversations.map((conv) => {
+        if (conv.id === conversationId && conv.currentProposal) {
+          return {
+            ...conv,
+            status: "proposal_rejected" as ConversationStatus,
+            currentProposal: {
+              ...conv.currentProposal,
+              rejectionReason,
+            },
+          };
+        }
+        return conv;
+      }),
     }));
     
     const data = getStoredData() || {};
@@ -427,6 +438,20 @@ export const useStore = create<AppState>((set, get) => ({
     data.conversations = get().conversations;
     saveToLocalStorage(data);
   },
+
+  closeConversation: (conversationId) => {
+    set((state) => ({
+      conversations: state.conversations.map((conv) =>
+        conv.id === conversationId
+          ? { ...conv, status: "closed" as ConversationStatus }
+          : conv
+      ),
+    }));
+    
+    const data = getStoredData() || {};
+    data.conversations = get().conversations;
+    saveToLocalStorage(data);
+  },
   
   setSearchQuery: (query) => set({ searchQuery: query }),
   
@@ -441,139 +466,209 @@ export const useStore = create<AppState>((set, get) => ({
         notifications: data.notifications || [],
         conversations: data.conversations || [],
       });
-    } else {
-      // Initialize with dummy conversations for testing
-      const currentUser = get().currentUser;
-      if (currentUser) {
-        const dummyConversations: Conversation[] = [
-          {
-            id: 'conv1',
-            postId: 'post1',
-            postTitle: 'Butuh Desain Logo untuk Startup',
-            participants: [currentUser.id, 'user2'],
-            participantNames: [currentUser.username, 'Sarah Designer'],
-            participantAvatars: [currentUser.avatar, 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah'],
-            messages: [
-              {
-                id: 'msg1',
-                senderId: 'user2',
-                senderName: 'Sarah Designer',
-                senderAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
-                text: 'Halo! Saya tertarik dengan proyek logo Anda. Saya punya pengalaman 5 tahun di branding.',
-                createdAt: new Date(Date.now() - 3600000).toISOString(),
-              },
-              {
-                id: 'msg2',
-                senderId: currentUser.id,
-                senderName: currentUser.username,
-                senderAvatar: currentUser.avatar,
-                text: 'Bagus! Budget saya sekitar 2-3 juta. Bagaimana dengan Anda?',
-                createdAt: new Date(Date.now() - 1800000).toISOString(),
-              },
-            ],
-            lastMessage: 'Bagus! Budget saya sekitar 2-3 juta. Bagaimana dengan Anda?',
-            lastMessageTime: new Date(Date.now() - 1800000).toISOString(),
-            unreadCount: 0,
-            status: 'negotiating',
-          },
-          {
-            id: 'conv2',
-            postId: 'post2',
-            postTitle: 'Jasa Renovasi Rumah',
-            participants: [currentUser.id, 'user3'],
-            participantNames: [currentUser.username, 'Budi Kontraktor'],
-            participantAvatars: [currentUser.avatar, 'https://api.dicebear.com/7.x/avataaars/svg?seed=Budi'],
-            messages: [
-              {
-                id: 'msg3',
-                senderId: 'user3',
-                senderName: 'Budi Kontraktor',
-                senderAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Budi',
-                text: 'Setelah survey lokasi, saya tawarkan 45 juta untuk renovasi total.',
-                createdAt: new Date(Date.now() - 7200000).toISOString(),
-              },
-            ],
-            lastMessage: 'Setelah survey lokasi, saya tawarkan 45 juta untuk renovasi total.',
-            lastMessageTime: new Date(Date.now() - 7200000).toISOString(),
-            unreadCount: 1,
-            status: 'proposal_sent',
-            currentProposal: {
-              id: 'prop1',
-              conversationId: 'conv2',
-              proposedBy: 'user3',
-              amount: 45000000,
-              message: 'Termasuk material premium dan garansi 2 tahun',
-              createdAt: new Date(Date.now() - 7200000).toISOString(),
-            },
-          },
-          {
-            id: 'conv3',
-            postId: 'post3',
-            postTitle: 'Web Developer untuk E-commerce',
-            participants: [currentUser.id, 'user4'],
-            participantNames: [currentUser.username, 'Andi Developer'],
-            participantAvatars: [currentUser.avatar, 'https://api.dicebear.com/7.x/avataaars/svg?seed=Andi'],
-            messages: [
-              {
-                id: 'msg4',
-                senderId: currentUser.id,
-                senderName: currentUser.username,
-                senderAvatar: currentUser.avatar,
-                text: 'Oke, saya setuju dengan 25 juta untuk proyek ini.',
-                createdAt: new Date(Date.now() - 14400000).toISOString(),
-              },
-            ],
-            lastMessage: 'Oke, saya setuju dengan 25 juta untuk proyek ini.',
-            lastMessageTime: new Date(Date.now() - 14400000).toISOString(),
-            unreadCount: 0,
-            status: 'deal_agreed',
-            currentProposal: {
-              id: 'prop2',
-              conversationId: 'conv3',
-              proposedBy: 'user4',
-              amount: 25000000,
-              message: 'Full-stack development dengan maintenance 3 bulan',
-              createdAt: new Date(Date.now() - 18000000).toISOString(),
-            },
-          },
-          {
-            id: 'conv4',
-            postId: 'post4',
-            postTitle: 'Fotografer Wedding',
-            participants: [currentUser.id, 'user5'],
-            participantNames: [currentUser.username, 'Linda Photographer'],
-            participantAvatars: [currentUser.avatar, 'https://api.dicebear.com/7.x/avataaars/svg?seed=Linda'],
-            messages: [
-              {
-                id: 'msg5',
-                senderId: 'user5',
-                senderName: 'Linda Photographer',
-                senderAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Linda',
-                text: 'Kontrak sudah ditandatangani. Saya mulai persiapan alat!',
-                createdAt: new Date(Date.now() - 86400000).toISOString(),
-              },
-            ],
-            lastMessage: 'Kontrak sudah ditandatangani. Saya mulai persiapan alat!',
-            lastMessageTime: new Date(Date.now() - 86400000).toISOString(),
-            unreadCount: 0,
-            status: 'work_in_progress',
-            contract: {
-              id: 'contract1',
-              conversationId: 'conv4',
-              finalAmount: 8000000,
-              agreedAt: new Date(Date.now() - 86400000).toISOString(),
-              jobMakerId: currentUser.id,
-              jobSeekerId: 'user5',
-            },
-          },
-        ];
-        
-        set({ conversations: dummyConversations });
-        
-        const newData = getStoredData() || {};
-        newData.conversations = dummyConversations;
-        saveToLocalStorage(newData);
-      }
     }
+  },
+
+  resetConversationsWithDummyData: () => {
+    const currentUser = get().currentUser;
+    if (!currentUser) return;
+
+    const dummyConversations: Conversation[] = [
+      {
+        id: 'conv1',
+        postId: 'post1',
+        postTitle: 'Butuh Desain Logo untuk Startup',
+        participants: [currentUser.id, 'user2'],
+        participantNames: [currentUser.username, 'Sarah Designer'],
+        participantAvatars: [currentUser.avatar, 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah'],
+        messages: [
+          {
+            id: 'msg1',
+            senderId: 'user2',
+            senderName: 'Sarah Designer',
+            senderAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
+            text: 'Halo! Saya tertarik dengan proyek logo Anda. Saya punya pengalaman 5 tahun di branding.',
+            createdAt: new Date(Date.now() - 3600000).toISOString(),
+          },
+          {
+            id: 'msg2',
+            senderId: currentUser.id,
+            senderName: currentUser.username,
+            senderAvatar: currentUser.avatar,
+            text: 'Bagus! Budget saya sekitar 2-3 juta. Bagaimana dengan Anda?',
+            createdAt: new Date(Date.now() - 1800000).toISOString(),
+          },
+        ],
+        lastMessage: 'Bagus! Budget saya sekitar 2-3 juta. Bagaimana dengan Anda?',
+        lastMessageTime: new Date(Date.now() - 1800000).toISOString(),
+        unreadCount: 0,
+        status: 'negotiating',
+      },
+      {
+        id: 'conv2',
+        postId: 'post2',
+        postTitle: 'Jasa Renovasi Rumah',
+        participants: [currentUser.id, 'user3'],
+        participantNames: [currentUser.username, 'Budi Kontraktor'],
+        participantAvatars: [currentUser.avatar, 'https://api.dicebear.com/7.x/avataaars/svg?seed=Budi'],
+        messages: [
+          {
+            id: 'msg3',
+            senderId: 'user3',
+            senderName: 'Budi Kontraktor',
+            senderAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Budi',
+            text: 'Setelah survey lokasi, saya tawarkan 45 juta untuk renovasi total.',
+            createdAt: new Date(Date.now() - 7200000).toISOString(),
+          },
+        ],
+        lastMessage: 'Setelah survey lokasi, saya tawarkan 45 juta untuk renovasi total.',
+        lastMessageTime: new Date(Date.now() - 7200000).toISOString(),
+        unreadCount: 1,
+        status: 'proposal_sent',
+        currentProposal: {
+          id: 'prop1',
+          conversationId: 'conv2',
+          proposedBy: 'user3',
+          amount: 45000000,
+          message: 'Termasuk material premium dan garansi 2 tahun',
+          createdAt: new Date(Date.now() - 7200000).toISOString(),
+        },
+      },
+      {
+        id: 'conv3',
+        postId: 'post3',
+        postTitle: 'Desain Grafis untuk Packaging',
+        participants: [currentUser.id, 'user6'],
+        participantNames: [currentUser.username, 'Rina Designer'],
+        participantAvatars: [currentUser.avatar, 'https://api.dicebear.com/7.x/avataaars/svg?seed=Rina'],
+        messages: [
+          {
+            id: 'msg6',
+            senderId: 'user6',
+            senderName: 'Rina Designer',
+            senderAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Rina',
+            text: 'Saya tawarkan 5 juta untuk 3 desain packaging.',
+            createdAt: new Date(Date.now() - 10800000).toISOString(),
+          },
+          {
+            id: 'msg7',
+            senderId: currentUser.id,
+            senderName: currentUser.username,
+            senderAvatar: currentUser.avatar,
+            text: 'Harganya terlalu tinggi, budget saya hanya 3 juta.',
+            createdAt: new Date(Date.now() - 9000000).toISOString(),
+          },
+        ],
+        lastMessage: 'Harganya terlalu tinggi, budget saya hanya 3 juta.',
+        lastMessageTime: new Date(Date.now() - 9000000).toISOString(),
+        unreadCount: 0,
+        status: 'proposal_rejected',
+        currentProposal: {
+          id: 'prop3',
+          conversationId: 'conv3',
+          proposedBy: 'user6',
+          amount: 5000000,
+          message: 'Termasuk 3 revisi dan file siap cetak',
+          rejectionReason: 'Harga tidak sesuai budget',
+          createdAt: new Date(Date.now() - 10800000).toISOString(),
+        },
+      },
+      {
+        id: 'conv4',
+        postId: 'post4',
+        postTitle: 'Web Developer untuk E-commerce',
+        participants: [currentUser.id, 'user4'],
+        participantNames: [currentUser.username, 'Andi Developer'],
+        participantAvatars: [currentUser.avatar, 'https://api.dicebear.com/7.x/avataaars/svg?seed=Andi'],
+        messages: [
+          {
+            id: 'msg4',
+            senderId: currentUser.id,
+            senderName: currentUser.username,
+            senderAvatar: currentUser.avatar,
+            text: 'Oke, saya setuju dengan 25 juta untuk proyek ini.',
+            createdAt: new Date(Date.now() - 14400000).toISOString(),
+          },
+        ],
+        lastMessage: 'Oke, saya setuju dengan 25 juta untuk proyek ini.',
+        lastMessageTime: new Date(Date.now() - 14400000).toISOString(),
+        unreadCount: 0,
+        status: 'deal_agreed',
+        currentProposal: {
+          id: 'prop2',
+          conversationId: 'conv4',
+          proposedBy: 'user4',
+          amount: 25000000,
+          message: 'Full-stack development dengan maintenance 3 bulan',
+          createdAt: new Date(Date.now() - 18000000).toISOString(),
+        },
+      },
+      {
+        id: 'conv5',
+        postId: 'post5',
+        postTitle: 'Fotografer Wedding',
+        participants: [currentUser.id, 'user5'],
+        participantNames: [currentUser.username, 'Linda Photographer'],
+        participantAvatars: [currentUser.avatar, 'https://api.dicebear.com/7.x/avataaars/svg?seed=Linda'],
+        messages: [
+          {
+            id: 'msg5',
+            senderId: 'user5',
+            senderName: 'Linda Photographer',
+            senderAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Linda',
+            text: 'Kontrak sudah ditandatangani. Saya mulai persiapan alat!',
+            createdAt: new Date(Date.now() - 86400000).toISOString(),
+          },
+        ],
+        lastMessage: 'Kontrak sudah ditandatangani. Saya mulai persiapan alat!',
+        lastMessageTime: new Date(Date.now() - 86400000).toISOString(),
+        unreadCount: 0,
+        status: 'work_in_progress',
+        contract: {
+          id: 'contract1',
+          conversationId: 'conv5',
+          finalAmount: 8000000,
+          agreedAt: new Date(Date.now() - 86400000).toISOString(),
+          jobMakerId: currentUser.id,
+          jobSeekerId: 'user5',
+        },
+      },
+      {
+        id: 'conv6',
+        postId: 'post6',
+        postTitle: 'Video Editor untuk YouTube',
+        participants: [currentUser.id, 'user7'],
+        participantNames: [currentUser.username, 'Dimas Editor'],
+        participantAvatars: [currentUser.avatar, 'https://api.dicebear.com/7.x/avataaars/svg?seed=Dimas'],
+        messages: [
+          {
+            id: 'msg8',
+            senderId: 'user7',
+            senderName: 'Dimas Editor',
+            senderAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Dimas',
+            text: 'Video sudah selesai saya edit dan render!',
+            createdAt: new Date(Date.now() - 172800000).toISOString(),
+          },
+        ],
+        lastMessage: 'Video sudah selesai saya edit dan render!',
+        lastMessageTime: new Date(Date.now() - 172800000).toISOString(),
+        unreadCount: 0,
+        status: 'completed',
+        contract: {
+          id: 'contract2',
+          conversationId: 'conv6',
+          finalAmount: 3500000,
+          agreedAt: new Date(Date.now() - 259200000).toISOString(),
+          jobMakerId: currentUser.id,
+          jobSeekerId: 'user7',
+        },
+      },
+    ];
+    
+    set({ conversations: dummyConversations });
+    
+    const data = getStoredData() || {};
+    data.conversations = dummyConversations;
+    saveToLocalStorage(data);
   },
 }));

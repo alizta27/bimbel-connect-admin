@@ -4,14 +4,20 @@ import { useStore } from "@/lib/store";
 import BottomNav from "@/components/BottomNav";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageCircle, ArrowLeft } from "lucide-react";
+import { MessageCircle, ArrowLeft, RefreshCw } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { id } from "date-fns/locale";
 
 export default function Chat() {
   const [, setLocation] = useLocation();
-  const { conversations, currentUser, initializeFromLocalStorage } = useStore();
+  const {
+    conversations,
+    currentUser,
+    initializeFromLocalStorage,
+    resetConversationsWithDummyData,
+  } = useStore();
 
   useEffect(() => {
     initializeFromLocalStorage();
@@ -41,6 +47,14 @@ export default function Chat() {
             </button>
             <h1 className="text-xl font-bold">Chat & Penawaran</h1>
           </div>
+          <Button
+            onClick={resetConversationsWithDummyData}
+            variant="ghost"
+            size="icon"
+            title="Reset dengan data dummy"
+          >
+            <RefreshCw className="w-5 h-5" />
+          </Button>
         </div>
       </header>
 
@@ -105,18 +119,18 @@ export default function Chat() {
                               className="text-xs whitespace-nowrap"
                             >
                               {conversation.status === "negotiating"
-                                ? "Negosiasi"
+                                ? "🤝 Negosiasi"
                                 : conversation.status === "proposal_sent"
-                                ? "Menunggu"
+                                ? "📋 Menunggu"
                                 : conversation.status === "proposal_rejected"
-                                ? "Ditolak"
+                                ? "❌ Ditolak"
                                 : conversation.status === "deal_agreed"
-                                ? "Sepakat"
+                                ? "✅ Sepakat"
                                 : conversation.status === "work_in_progress"
-                                ? "Berlangsung"
+                                ? "🔨 Berlangsung"
                                 : conversation.status === "completed"
-                                ? "Selesai"
-                                : "Ditutup"}
+                                ? "🎉 Selesai"
+                                : "🔒 Ditutup"}
                             </Badge>
                           </div>
                         </div>
