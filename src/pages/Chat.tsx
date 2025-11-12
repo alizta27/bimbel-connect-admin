@@ -20,7 +20,7 @@ export default function Chat() {
     const data = storedUser ? JSON.parse(storedUser) : null;
 
     if (!data?.currentUser) {
-      setLocation('/landing');
+      setLocation("/landing");
     }
   }, []);
 
@@ -34,7 +34,7 @@ export default function Chat() {
         <div className="flex items-center justify-between p-4 max-w-lg mx-auto">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setLocation('/')}
+              onClick={() => setLocation("/")}
               className="hover-elevate rounded-full p-1"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -45,7 +45,7 @@ export default function Chat() {
       </header>
 
       <ScrollArea className="h-[calc(100vh-8rem)]">
-        <div className="max-w-lg mx-auto p-4">
+        <div className="max-w-[100vw] mx-auto p-4">
           {conversations.length === 0 ? (
             <div className="text-center py-12">
               <MessageCircle className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
@@ -59,8 +59,10 @@ export default function Chat() {
                 const otherUserIndex = conversation.participants.findIndex(
                   (id) => id !== currentUser?.id
                 );
-                const otherUserName = conversation.participantNames[otherUserIndex];
-                const otherUserAvatar = conversation.participantAvatars[otherUserIndex];
+                const otherUserName =
+                  conversation.participantNames[otherUserIndex];
+                const otherUserAvatar =
+                  conversation.participantAvatars[otherUserIndex];
 
                 return (
                   <div
@@ -75,32 +77,46 @@ export default function Chat() {
                       </Avatar>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2 mb-1">
-                          <h3 className="font-semibold truncate">{otherUserName}</h3>
+                          <h3 className="font-semibold truncate">
+                            {otherUserName}
+                          </h3>
                           <div className="flex items-center gap-2">
                             {conversation.unreadCount > 0 && (
                               <Badge variant="default" className="text-xs">
                                 {conversation.unreadCount}
                               </Badge>
                             )}
-                            <Badge 
+                            <Badge
                               variant={
-                                conversation.status === "negotiating" ? "secondary" :
-                                conversation.status === "proposal_sent" ? "default" :
-                                conversation.status === "proposal_rejected" ? "destructive" :
-                                conversation.status === "deal_agreed" ? "default" :
-                                conversation.status === "work_in_progress" ? "default" :
-                                conversation.status === "completed" ? "secondary" :
-                                "outline"
+                                conversation.status === "negotiating"
+                                  ? "secondary"
+                                  : conversation.status === "proposal_sent"
+                                  ? "default"
+                                  : conversation.status === "proposal_rejected"
+                                  ? "destructive"
+                                  : conversation.status === "deal_agreed"
+                                  ? "default"
+                                  : conversation.status === "work_in_progress"
+                                  ? "default"
+                                  : conversation.status === "completed"
+                                  ? "secondary"
+                                  : "outline"
                               }
                               className="text-xs whitespace-nowrap"
                             >
-                              {conversation.status === "negotiating" ? "Negosiasi" :
-                               conversation.status === "proposal_sent" ? "Menunggu" :
-                               conversation.status === "proposal_rejected" ? "Ditolak" :
-                               conversation.status === "deal_agreed" ? "Sepakat" :
-                               conversation.status === "work_in_progress" ? "Berlangsung" :
-                               conversation.status === "completed" ? "Selesai" :
-                               "Ditutup"}
+                              {conversation.status === "negotiating"
+                                ? "Negosiasi"
+                                : conversation.status === "proposal_sent"
+                                ? "Menunggu"
+                                : conversation.status === "proposal_rejected"
+                                ? "Ditolak"
+                                : conversation.status === "deal_agreed"
+                                ? "Sepakat"
+                                : conversation.status === "work_in_progress"
+                                ? "Berlangsung"
+                                : conversation.status === "completed"
+                                ? "Selesai"
+                                : "Ditutup"}
                             </Badge>
                           </div>
                         </div>
@@ -114,10 +130,13 @@ export default function Chat() {
                             </p>
                             {conversation.lastMessageTime && (
                               <p className="text-xs text-muted-foreground whitespace-nowrap ml-2">
-                                {formatDistanceToNow(new Date(conversation.lastMessageTime), {
-                                  addSuffix: true,
-                                  locale: id,
-                                })}
+                                {formatDistanceToNow(
+                                  new Date(conversation.lastMessageTime),
+                                  {
+                                    addSuffix: true,
+                                    locale: id,
+                                  }
+                                )}
                               </p>
                             )}
                           </div>
