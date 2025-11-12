@@ -94,13 +94,13 @@ export default function Chat() {
                               }
                               className="text-xs whitespace-nowrap"
                             >
-                              {conversation.status === "negotiating" ? "Negosiasi" :
-                               conversation.status === "proposal_sent" ? "Menunggu" :
-                               conversation.status === "proposal_rejected" ? "Ditolak" :
-                               conversation.status === "deal_agreed" ? "Sepakat" :
-                               conversation.status === "work_in_progress" ? "Berlangsung" :
-                               conversation.status === "completed" ? "Selesai" :
-                               "Ditutup"}
+                              {conversation.status === "negotiating" ? "🤝 Negosiasi" :
+                               conversation.status === "proposal_sent" ? "📋 Menunggu" :
+                               conversation.status === "proposal_rejected" ? "❌ Ditolak" :
+                               conversation.status === "deal_agreed" ? "✅ Sepakat" :
+                               conversation.status === "work_in_progress" ? "🔨 Berlangsung" :
+                               conversation.status === "completed" ? "🎉 Selesai" :
+                               "🔒 Ditutup"}
                             </Badge>
                           </div>
                         </div>

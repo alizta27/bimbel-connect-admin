@@ -77,6 +77,7 @@ export interface Proposal {
   proposedBy: string;
   amount: number;
   message?: string;
+  rejectionReason?: string;
   createdAt: string;
 }
 
@@ -126,8 +127,9 @@ interface AppState {
   updateConversationStatus: (conversationId: string, status: ConversationStatus) => void;
   sendProposal: (conversationId: string, amount: number, message?: string) => void;
   approveProposal: (conversationId: string) => void;
-  rejectProposal: (conversationId: string) => void;
+  rejectProposal: (conversationId: string, rejectionReason?: string) => void;
   createContract: (conversationId: string, finalAmount: number) => void;
+  closeConversation: (conversationId: string) => void;
   setSearchQuery: (query: string) => void;
   setSelectedCategory: (category: string) => void;
   initializeFromLocalStorage: () => void;
@@ -388,13 +390,21 @@ export const useStore = create<AppState>((set, get) => ({
     saveToLocalStorage(data);
   },
 
-  rejectProposal: (conversationId) => {
+  rejectProposal: (conversationId, rejectionReason) => {
     set((state) => ({
-      conversations: state.conversations.map((conv) =>
-        conv.id === conversationId
-          ? { ...conv, status: "proposal_rejected" as ConversationStatus, currentProposal: undefined }
-          : conv
-      ),
+      conversations: state.conversations.map((conv) => {
+        if (conv.id === conversationId && conv.currentProposal) {
+          return {
+            ...conv,
+            status: "proposal_rejected" as ConversationStatus,
+            currentProposal: {
+              ...conv.currentProposal,
+              rejectionReason,
+            },
+          };
+        }
+        return conv;
+      }),
     }));
     
     const data = getStoredData() || {};
@@ -419,6 +429,20 @@ export const useStore = create<AppState>((set, get) => ({
       conversations: state.conversations.map((conv) =>
         conv.id === conversationId
           ? { ...conv, contract, status: "work_in_progress" as ConversationStatus }
+          : conv
+      ),
+    }));
+    
+    const data = getStoredData() || {};
+    data.conversations = get().conversations;
+    saveToLocalStorage(data);
+  },
+
+  closeConversation: (conversationId) => {
+    set((state) => ({
+      conversations: state.conversations.map((conv) =>
+        conv.id === conversationId
+          ? { ...conv, status: "closed" as ConversationStatus }
           : conv
       ),
     }));

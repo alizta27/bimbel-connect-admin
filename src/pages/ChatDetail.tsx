@@ -23,14 +23,17 @@ export default function ChatDetail() {
     approveProposal,
     rejectProposal,
     createContract,
-    initializeFromLocalStorage 
+    closeConversation,
+    initializeFromLocalStorage
   } = useStore();
   const [messageText, setMessageText] = useState("");
   const [proposalAmount, setProposalAmount] = useState("");
   const [proposalMessage, setProposalMessage] = useState("");
   const [finalAmount, setFinalAmount] = useState("");
+  const [rejectionReason, setRejectionReason] = useState("");
   const [showProposalSheet, setShowProposalSheet] = useState(false);
   const [showContractSheet, setShowContractSheet] = useState(false);
+  const [showRejectSheet, setShowRejectSheet] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -100,8 +103,13 @@ export default function ChatDetail() {
   };
 
   const handleReject = () => {
-    rejectProposal(conversationId);
-    updateConversationStatus(conversationId, "negotiating");
+    setShowRejectSheet(true);
+  };
+
+  const handleConfirmReject = () => {
+    rejectProposal(conversationId, rejectionReason);
+    setRejectionReason("");
+    setShowRejectSheet(false);
   };
 
   const handleCreateContract = () => {
@@ -117,12 +125,18 @@ export default function ChatDetail() {
     updateConversationStatus(conversationId, "completed");
   };
 
+  const handleCloseConversation = () => {
+    closeConversation(conversationId);
+  };
+
   const canSendProposal = conversation.status === "negotiating" || conversation.status === "proposal_rejected";
   const hasProposal = conversation.status === "proposal_sent" && conversation.currentProposal;
   const isProposalReceiver = hasProposal && conversation.currentProposal?.proposedBy !== currentUser.id;
   const isDealAgreed = conversation.status === "deal_agreed";
   const isWorkInProgress = conversation.status === "work_in_progress";
   const isCompleted = conversation.status === "completed";
+  const isClosed = conversation.status === "closed";
+  const isRejected = conversation.status === "proposal_rejected";
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -156,13 +170,13 @@ export default function ChatDetail() {
             }
             className="text-xs"
           >
-            {conversation.status === "negotiating" ? "Negosiasi" :
-             conversation.status === "proposal_sent" ? "Menunggu" :
-             conversation.status === "proposal_rejected" ? "Ditolak" :
-             conversation.status === "deal_agreed" ? "Sepakat" :
-             conversation.status === "work_in_progress" ? "Berlangsung" :
-             conversation.status === "completed" ? "Selesai" :
-             "Ditutup"}
+              {conversation.status === "negotiating" ? "🤝 Negosiasi" :
+               conversation.status === "proposal_sent" ? "📋 Menunggu" :
+               conversation.status === "proposal_rejected" ? "❌ Ditolak" :
+               conversation.status === "deal_agreed" ? "✅ Sepakat" :
+               conversation.status === "work_in_progress" ? "🔨 Berlangsung" :
+               conversation.status === "completed" ? "🎉 Selesai" :
+               "🔒 Ditutup"}
           </Badge>
         </div>
       </header>
@@ -216,6 +230,14 @@ export default function ChatDetail() {
 
       <div className="sticky bottom-0 bg-card border-t border-card-border p-4">
         <div className="max-w-lg mx-auto space-y-2">
+          {/* Show rejection reason if proposal was rejected */}
+          {isRejected && conversation.currentProposal?.rejectionReason && (
+            <div className="bg-destructive/10 border border-destructive/20 p-3 rounded-lg">
+              <p className="text-sm font-semibold text-destructive mb-1">Alasan Penolakan:</p>
+              <p className="text-sm text-muted-foreground">{conversation.currentProposal.rejectionReason}</p>
+            </div>
+          )}
+
           {/* Action Buttons based on status */}
           {canSendProposal && (
             <Button 
@@ -327,21 +349,37 @@ export default function ChatDetail() {
           )}
 
           {isCompleted && conversation.contract && (
-            <div className="bg-green-500/10 border border-green-500/20 p-4 rounded-lg">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-500" />
-                <div>
-                  <p className="font-semibold text-green-500">Pekerjaan Selesai</p>
-                  <p className="text-sm text-muted-foreground">
-                    Total: Rp {conversation.contract.finalAmount.toLocaleString('id-ID')}
-                  </p>
+            <div className="space-y-2">
+              <div className="bg-green-500/10 border border-green-500/20 p-4 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                  <div>
+                    <p className="font-semibold text-green-500">Pekerjaan Selesai</p>
+                    <p className="text-sm text-muted-foreground">
+                      Total: Rp {conversation.contract.finalAmount.toLocaleString('id-ID')}
+                    </p>
+                  </div>
                 </div>
               </div>
+              <Button onClick={handleCloseConversation} variant="outline" className="w-full">
+                Tutup & Arsipkan Percakapan
+              </Button>
+            </div>
+          )}
+
+          {isClosed && conversation.contract && (
+            <div className="bg-muted p-4 rounded-lg">
+              <p className="text-sm font-semibold text-muted-foreground text-center">
+                Percakapan telah ditutup
+              </p>
+              <p className="text-xs text-muted-foreground text-center mt-1">
+                Total: Rp {conversation.contract.finalAmount.toLocaleString('id-ID')}
+              </p>
             </div>
           )}
 
           {/* Message Input */}
-          {!isCompleted && (
+          {!isCompleted && !isClosed && (
             <div className="flex gap-2">
               <Input
                 value={messageText}
@@ -395,6 +433,48 @@ export default function ChatDetail() {
             >
               Kirim Penawaran
             </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Reject Proposal Sheet */}
+      <Sheet open={showRejectSheet} onOpenChange={setShowRejectSheet}>
+        <SheetContent side="bottom" className="h-[400px]">
+          <SheetHeader>
+            <SheetTitle>Tolak Penawaran</SheetTitle>
+          </SheetHeader>
+          <div className="py-6 space-y-4">
+            <div className="bg-muted p-4 rounded-lg">
+              <p className="text-sm font-semibold mb-1">Penawaran yang akan ditolak:</p>
+              <p className="text-lg font-bold text-primary">
+                Rp {conversation.currentProposal?.amount.toLocaleString('id-ID')}
+              </p>
+            </div>
+            <div>
+              <label className="text-sm font-medium">Alasan Penolakan (Opsional)</label>
+              <Input
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                placeholder="Jelaskan alasan penolakan..."
+                className="mt-1"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => setShowRejectSheet(false)}
+                variant="outline"
+                className="flex-1"
+              >
+                Batal
+              </Button>
+              <Button 
+                onClick={handleConfirmReject}
+                variant="destructive"
+                className="flex-1"
+              >
+                Tolak Penawaran
+              </Button>
+            </div>
           </div>
         </SheetContent>
       </Sheet>
