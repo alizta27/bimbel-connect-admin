@@ -4,14 +4,15 @@ import { useStore } from "@/lib/store";
 import BottomNav from "@/components/BottomNav";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageCircle, ArrowLeft } from "lucide-react";
+import { MessageCircle, ArrowLeft, RefreshCw } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { id } from "date-fns/locale";
 
 export default function Chat() {
   const [, setLocation] = useLocation();
-  const { conversations, currentUser, initializeFromLocalStorage } = useStore();
+  const { conversations, currentUser, initializeFromLocalStorage, resetConversationsWithDummyData } = useStore();
 
   useEffect(() => {
     initializeFromLocalStorage();
@@ -41,6 +42,14 @@ export default function Chat() {
             </button>
             <h1 className="text-xl font-bold">Chat & Penawaran</h1>
           </div>
+          <Button
+            onClick={resetConversationsWithDummyData}
+            variant="ghost"
+            size="icon"
+            title="Reset dengan data dummy"
+          >
+            <RefreshCw className="w-5 h-5" />
+          </Button>
         </div>
       </header>
 
